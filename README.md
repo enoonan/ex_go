@@ -10,6 +10,13 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 Next, get all set up with Stripe, including logging into the Stripe CLI. Then:
 * Run `stripe listen --forward-to localhost:4000/webhooks/stripe` 
 
+Put your Stripe dev SDK and the Webhook secret that gets output from the command above into a .env file:
+
+```
+STRIPE_SECRET="sk_test_..."
+STRIPE_WEBHOOK_SECRET="whsec_..."
+```
+
 Check out: 
 * `ExGoWeb.StripeWebhookController`
 * `ExGoWeb.ParsersWithRawBody` (ripped shamelessly from the Dashbit blog)
