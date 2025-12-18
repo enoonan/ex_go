@@ -29,7 +29,7 @@ I've since decided to [just use Req](https://dashbit.co/blog/sdks-with-req-strip
 
 The version you see here uses a module called `GoRunner` which uses `System.cmd` to shell out to the Go binary. That's the simplest approach, but it does seem to incur about a 40ms startup cost for each command. 
 
-I had another version that wrapped a long running Go process in a GenServer with [Ports](https://hexdocs.pm/elixir/Port.html). That was quite snappy, and if the Go process crashed, so too would the GenServer, and both would simply be restarted by the app. 
+I had another version that wrapped a long running Go process in a GenServer with [Ports](https://hexdocs.pm/elixir/Port.html) (see code below). That was quite snappy, and if the Go process crashed, so too would the GenServer, and both would simply be restarted by the app. 
 
 But it's a bit more complex to manage. If you have a huge spike, that GenServer could become a bottleneck, so you might want to manage a pool of them. However, it does seem unlikely for most apps to ever get hundreds of Stripe requests per second. At that point you'll have bigger problems.
 
