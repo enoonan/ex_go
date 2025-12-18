@@ -7,23 +7,41 @@ To start your Phoenix server:
 
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
+Next, get all set up with Stripe, including logging into the Stripe CLI. Then:
+* Run `stripe listen --forward-to localhost:4000/webhooks/stripe` 
 
-### What is this
-It's an experiment to scratch an itch I had. I was feeling consternations about not using an officially supported Stripe SDK and I thought, "hmm, Go compiles to a binary, wouldn't it be neat to just call out to Go?"
+Check out: 
+* `ExGoWeb.StripeWebhookController`
+* `ExGoWeb.ParsersWithRawBody` (ripped shamelessly from the Dashbit blog)
+* `GoRunner` in `lib/ex_go/go_runner.ex`
+* everything in `go/go_ex` 
 
-I've since decided to [just use Req](https://dashbit.co/blog/sdks-with-req-stripe), but I had to scratch the itch.
+In iex, try:
+```
+> `GoRunner.send_command("new_customer", %{email: "foo@bar.com", description: "bazz buzz"})`
+> `GoRunner.send_command("get_customer", %{stripe_id: "cust_1234asdf"})`
+```
 
-The version you see here uses a module called `GoRunner` which just uses `System.cmd` to shell out to the Go binary. That's the simplest approach, but it does seem to incur about a 40ms startup cost for each command. 
 
-I had another version that used wrapped a long running Go process in a GenServer with [Ports](https://hexdocs.pm/elixir/Port.html). That was quite snappy, but it's more complex to manage. If you have a huge spike, requests could queue up, so you might want to manage these GenServers in a pool. However it does seem unlikely for most apps to get hundreds of Stripe requests per second.  
+
+### What is this??
+It's an experiment to scratch an itch I had. I was feeling consternations about not using an officially supported Stripe SDK and I thought, "hmm, Go compiles to a binary, wouldn't it be neat to just call out to Stripe's Go SDK?"
+
+I've since decided to [just use Req](https://dashbit.co/blog/sdks-with-req-stripe).
+
+Nonetheless! Itches need scratching. The version you see here uses a module called `GoRunner` which uses `System.cmd` to shell out to the Go binary. That's the simplest approach, but it does seem to incur about a 40ms startup cost for each command. 
+
+I had another version that wrapped a long running Go process in a GenServer with [Ports](https://hexdocs.pm/elixir/Port.html). That was quite snappy, and if the Go process crashed, so too would the GenServer, and both would simply be restarted by the app. 
+
+But it's a bit more complex to manage. If you have a huge spike, that GenServer could become a bottleneck, so you might want to manage a pool of them. However, it does seem unlikely for most apps to ever get hundreds of Stripe requests per second. At that point you'll have bigger problems.
 
 Here is the GenServer version of `GoRunner`:
 
 ```elixir
 defmodule GoRunner do
   use GenServer
-  def start_link(go_binary_path) do
-    GenServer.start_link(__MODULE__, go_binary_path, name: __MODULE__)
+  def start_link(_) do
+    GenServer.start_link(__MODULE__, nil, name: __MODULE__)
   end
   def send_command(command, %{} = data \\ %{}) do
     GenServer.call(__MODULE__, {:command, command, data})
@@ -35,8 +53,10 @@ defmodule GoRunner do
     {:ok, %{port: port}}
   end
   def handle_call({:command, command, data}, _from, state) do
-    full_command = command <> " " <> Jason.encode!(data) <> "\n"
-    Port.command(state.port, full_command)
+    data_str = Jason.encode!(data)
+
+    Port.command(state.port, "#{command} #{data_str}\n")
+
     receive do
       {port, {:data, data}} when port == state.port ->
         case data |> String.trim() |> Jason.decode!() do
@@ -65,7 +85,7 @@ defmodule GoRunner do
 end
 ```
 
-And here is the Go code for that version (command handlers live in separate files and they don't care which version uses them):
+And here is the `main.go` code for that version:
 
 ```go
 package main
@@ -161,8 +181,8 @@ dev:
 
 `make dev` spins up the server with a fresh built Go binary ready to roll. Go compiles fast!
 
-I'd use similar code in a Dockerfile. The difference would be I'd need to specify a GOOS and/or GOARCH that corresponds to the machine I'm building. I don't see that as a huge issue but maybe some folks do.  
+I'd use similar code in a Dockerfile. The difference would be I'd need to specify a GOOS and/or GOARCH that corresponds to the machine I'm building. I don't see that as a huge challenge, but maybe some folks do.  
 
 ## Conclusion
 
-I'm still just going to use Req to interact with the Stripe API from Elixir. But maybe someday I'll have a need to use some embedded Go binary in an Elixir app. If that day comes, I shan't fear. 
+I'm still just going to use Req to interact with the Stripe API from Elixir. But maybe someday I'll have a need to use some embedded Go binary in an Elixir app. And if that day comes, I shan't fear. 
