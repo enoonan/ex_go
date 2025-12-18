@@ -83,7 +83,7 @@ defmodule GoRunner do
 end
 ```
 
-And here is the `main.go` code for that version:
+And here is the `main()` func for that version:
 
 ```go
 package main
@@ -127,35 +127,6 @@ func main() {
     if err := scanner.Err(); err != nil {
         fmt.Fprintf(os.Stderr, "Error reading input: %v\n", err)
     }
-}
-func processCommand(command string, data Input) {
-    result, err := runCommand(command, data)
-    if err != nil {
-        errOut(command, err)
-    } else {
-        successOutput(result)
-    }
-}
-func runCommand(command string, data Input) ([]byte, error) {
-    switch command {
-    case "hello":
-        return json.Marshal(map[string]string{"ok": "Hello from Go!"})
-    case "new_customer":
-        return NewCustomer(data)
-    case "get_customer":
-        return GetCustomer(data)
-    case "verify_webhook":
-        return VerifyWebhook(data)
-    }
-    return nil, fmt.Errorf("unknown command: %s", command)
-}
-func errOut(func_call string, err error) {
-    result, _ := json.Marshal(map[string]string{"error": "error running " + func_call + ": " + err.Error()})
-    fmt.Fprintf(os.Stdout, "%s", result)
-}
-func successOutput(o []byte) {
-    result, _ := json.Marshal(map[string]string{"ok": string(o)})
-    fmt.Fprintf(os.Stdout, "%s", string(result))
 }
 ```
 
