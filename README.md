@@ -1,10 +1,18 @@
 # ExGo
 
+## What is this??
+It's an experiment to scratch an itch I had. I was feeling consternations about not using an officially supported Stripe SDK and I thought, "hmm, Go compiles to a binary, wouldn't it be neat to just call out to Stripe's Go SDK?"
+
+I've since decided to [just use Req](https://dashbit.co/blog/sdks-with-req-stripe). Nonetheless! Itches need 
+scratching. 
+
+## Setup
+
 First, be sure you're all set up with Stripe. Log into the Stripe CLI. Then:
 
 * Run `stripe listen --forward-to localhost:4000/webhooks/stripe` 
-* 
-Put your Stripe dev secret and the Webhook secret that gets output from the command above into a .env file:
+
+Put your Stripe dev secret and the Webhook secret that gets output from the command above into a .env file in the root of the project:
 
 ```
 STRIPE_SECRET="sk_test_..."
@@ -18,7 +26,8 @@ To start your Phoenix server:
 
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
-Explore: 
+## Things to Explore!
+
 * `ExGoWeb.StripeWebhookController`
 * `ExGoWeb.ParsersWithRawBody` (ripped shamelessly from the Dashbit blog)
 * `GoRunner` in `lib/ex_go/go_runner.ex`
@@ -30,10 +39,7 @@ In iex, try:
 > GoRunner.send_command("get_customer", %{stripe_id: "cust_1234asdf"})
 ```
 
-### What is this??
-It's an experiment to scratch an itch I had. I was feeling consternations about not using an officially supported Stripe SDK and I thought, "hmm, Go compiles to a binary, wouldn't it be neat to just call out to Stripe's Go SDK?"
-
-I've since decided to [just use Req](https://dashbit.co/blog/sdks-with-req-stripe). Nonetheless! Itches need scratching. 
+## Some Explanations / a Long-Running Version
 
 The version you see here uses a module called `GoRunner` which uses `System.cmd` to shell out to the Go binary. That's the simplest approach, but it does seem to incur about a 40ms startup cost for each command. 
 
@@ -41,7 +47,7 @@ I had another version that wrapped a long running Go process in a GenServer with
 
 But it's a bit more complex to manage. If you have a huge spike, that GenServer could become a bottleneck, so you might want to manage a pool of them. However, it does seem unlikely for most apps to ever get hundreds of Stripe requests per second. At that point you'll have bigger problems.
 
-Here is the GenServer version of `GoRunner`:
+Here is the long-running GenServer version of `GoRunner`:
 
 ```elixir
 defmodule GoRunner do
@@ -100,7 +106,7 @@ defmodule GoRunner do
 end
 ```
 
-And here is the `main()` func for that version:
+And here is the `main()` func Go code for that version:
 
 ```go
 package main
@@ -147,8 +153,8 @@ func main() {
 }
 ```
 
-### Isn't this a deployment nightmare??
-I understand the concern, but I still don't see it as a huge problem. I manage all this locally with a Makefile:
+## Isn't this a deployment nightmare??
+I understand the concern, but I just don't see it as a huge problem. I manage all this locally with a Makefile:
 
 ```
 .PHONY: build_go
