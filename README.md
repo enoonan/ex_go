@@ -18,11 +18,9 @@ Check out:
 
 In iex, try:
 ```
-> `GoRunner.send_command("new_customer", %{email: "foo@bar.com", description: "bazz buzz"})`
-> `GoRunner.send_command("get_customer", %{stripe_id: "cust_1234asdf"})`
+> GoRunner.send_command("new_customer", %{email: "foo@bar.com", description: "bazz buzz"})
+> GoRunner.send_command("get_customer", %{stripe_id: "cust_1234asdf"})
 ```
-
-
 
 ### What is this??
 It's an experiment to scratch an itch I had. I was feeling consternations about not using an officially supported Stripe SDK and I thought, "hmm, Go compiles to a binary, wouldn't it be neat to just call out to Stripe's Go SDK?"
