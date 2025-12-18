@@ -64,12 +64,15 @@ defmodule GoRunner do
         case data |> String.trim() |> Jason.decode!() do
           %{"ok" => payload} ->
             {:reply, {:ok, payload |> String.trim() |> Jason.decode!()}, state}
+
           %{"error" => payload} ->
             {:reply, {:error, payload |> String.trim()}, state}
         end
+
       {port, {:exit_status, status}} when port == state.port ->
         send(self(), {port, {:exit_status, status}})
         {:reply, {:error, "Process exited with status #{status}"}, state}
+
       foo ->
         {:reply, {:ok, foo}, state}
     after
@@ -81,7 +84,7 @@ defmodule GoRunner do
   def handle_info({port, {:exit_status, _status}}, %{port: port} = state) do
     {:stop, :normal, state}
   end
-  
+
   def handle_info({port, info}, state) do
     IO.inspect({port, info})
     {:noreply, state}
