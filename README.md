@@ -39,7 +39,7 @@ In iex, try:
 > GoRunner.send_command("get_customer", %{stripe_id: "cust_1234asdf"})
 ```
 
-## Some Explanations / a Long-Running Version
+## `System.cmd` vs Ports
 
 The version you see here uses a module called `GoRunner` which uses `System.cmd` to shell out to the Go binary. That's the simplest approach, but it does seem to incur about a 40ms startup cost for each command. 
 
