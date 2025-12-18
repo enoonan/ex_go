@@ -159,7 +159,7 @@ func successOutput(o []byte) {
 }
 ```
 
-### ZOMG ISN'T THIS A DEPLOYMENT NIGHTMARE????
+### Isn't this a deployment nightmare??
 I understand the concern, but I still don't see it as a huge problem. I manage all this locally with a Makefile:
 
 ```
