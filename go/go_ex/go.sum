@@ -1,0 +1,4 @@
+github.com/stripe/stripe-go v70.15.0+incompatible h1:hNML7M1zx8RgtepEMlxyu/FpVPrP7KZm1gPFQquJQvM=
+github.com/stripe/stripe-go v70.15.0+incompatible/go.mod h1:A1dQZmO/QypXmsL0T8axYZkSN/uA/T/A64pfKdBAMiY=
+github.com/stripe/stripe-go/v84 v84.1.0 h1:9KW8Fm3csWsPNqBJCgdEZBM9pRNaqpESHIw+eXp8A0k=
+github.com/stripe/stripe-go/v84 v84.1.0/go.mod h1:kjXh3OrF4PT16qz7z9Q5yqYAZ1mJmu8g8f4Z1sOHBfc=
